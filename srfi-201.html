@@ -26,7 +26,7 @@ The editor will add this section.
   <code>let*</code> with pattern matching capabilities, to extend the forms <code>let*</code>
   and <code>or</code> with the ability
   to handle multiple values, and to extend the form <code>define</code> with
-  the ability of defining "curried" functions.</p> 
+  the ability of defining "curried" functions.</p>
 
 <h2>Issues</h2>
 
@@ -95,7 +95,7 @@ will not appear in the final SRFI.
   (lambda<sub>core</sub> args
     (match args
       (`(,&lt;patterns&gt; ...) . &lt;body&gt;)
-      (_ (error "invalid args: "args", expected"'(&lt;patterns&gt; ...)))))  
+      (_ (error "invalid args: "args", expected"'(&lt;patterns&gt; ...)))))
 </pre>
 
 
@@ -199,10 +199,10 @@ the SRFI-1 <code>every</code> procedure available during macro expansion.</p>
 
 <h2>Pattern-matching <code>lambda</code></h2>
 
-<p>The pattern matching variant of the  <code>lambda</code> form 
+<p>The pattern matching variant of the  <code>lambda</code> form
   can be implemented by defining the following <code>mlambda</code>
   form and exporting it to shadow the core <code>lambda</code> form.</p>
-  
+
 <pre>
 (define-syntax mlambda
   (lambda (stx)
@@ -220,14 +220,14 @@ the SRFI-1 <code>every</code> procedure available during macro expansion.</p>
       ((_ args body ...)
        #'(lambda params
            (match params
-             (args body ...) 
+             (args body ...)
 	     (_ (error 'mlambda '(args body ...))))))
       )))
 </pre>
 
 <h2>Higher-order <code>define</code> form</h2>
 
-<p>The "currying" variant of the  <code>define</code> form 
+<p>The "currying" variant of the  <code>define</code> form
   can be implemented by defining the following <code>cdefine</code>
   form and exporting it to shadow the core <code>define</code> form
   (assuming the presence of the <code>mlambda</code> form defined
@@ -249,7 +249,7 @@ the SRFI-1 <code>every</code> procedure available during macro expansion.</p>
 
 <h2>Pattern-maching variant of the <code>let</code> form that supports multiple values</h2>
 
-<p>The pattern matching variant of the <code>let</code> form 
+<p>The pattern matching variant of the <code>let</code> form
   can be implemented by defining the following <code>named-match-let-values</code>
   form and exporting it to shadow the core <code>let</code> form.</p>
 
@@ -261,7 +261,7 @@ the SRFI-1 <code>every</code> procedure available during macro expansion.</p>
      ((lambda args
         (match args
          ((structure ...) body + ...)
-	 (_ (error 'match-let/error 
+	 (_ (error 'match-let/error
 		   '((structure expression) ...)
 		   expression ...))))
        expression ...))))
@@ -289,7 +289,7 @@ the SRFI-1 <code>every</code> procedure available during macro expansion.</p>
 
       ((_ ((structure expression) ...)
 	  body + ...)
-       #'(match-let/error ((structure expression) ...) 
+       #'(match-let/error ((structure expression) ...)
 			  body + ...))
 
       ((_ ((identifier identifiers ... expression)) body + ...)
@@ -324,7 +324,7 @@ the SRFI-1 <code>every</code> procedure available during macro expansion.</p>
 
 <h2>Pattern-maching variant of the <code>let*</code> form that supports multiple values</h2>
 
-<p>The pattern matching variant of the <code>let*</code> form 
+<p>The pattern matching variant of the <code>let*</code> form
   can be implemented by defining the following <code>match-let*-values</code>
   form and exporting it to shadow the core <code>let*</code> form. It assumes the
   presence of the definition of the <code>match-let/error</code> form from
@@ -340,7 +340,7 @@ the SRFI-1 <code>every</code> procedure available during macro expansion.</p>
        (every identifier? #'(identifier ...))
        #'(let* ((identifier expression) ...)
 	   body + ...))
-      
+
       ((_ ((identifier expression) remaining-bindings ...)
 	  body + ...)
        (identifier? #'identifier)
@@ -350,20 +350,20 @@ the SRFI-1 <code>every</code> procedure available during macro expansion.</p>
       ((_ ((structure expression) remaining-bindings ...)
 	  body + ...)
        #'(match-let/error ((structure expression))
-			  (match-let*-values (remaining-bindings ...) 
+			  (match-let*-values (remaining-bindings ...)
 					     body + ...)))
 
       ((_ ((identifier identifiers ... expression) remaining-bindings ...)
 	  body + ...)
        (every identifier? #'(identifier identifiers ...))
-       #'(call-with-values (lambda () expression) 
+       #'(call-with-values (lambda () expression)
 	   (lambda (identifier identifiers ... . _)
-	     (match-let*-values (remaining-bindings ...) 
+	     (match-let*-values (remaining-bindings ...)
 				body + ...))))
 
       ((_ ((structure structures ... expression) remaining-bindings ...)
 	  body + ...)
-       #'(call-with-values (lambda () expression) 
+       #'(call-with-values (lambda () expression)
            (lambda args
              (match args
                ((structure structures ... . _)
@@ -383,10 +383,10 @@ the SRFI-1 <code>every</code> procedure available during macro expansion.</p>
   (syntax-rules ()
     ((_)
      #false)
-    
+
     ((or/values final)
      final)
-    
+
     ((or/values first . rest)
      (call-with-values (lambda () first)
        (lambda result
