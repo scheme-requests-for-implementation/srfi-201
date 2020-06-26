@@ -45,21 +45,21 @@ will not appear in the final SRFI.
 <p>However, those forms usually do not take into account the
   ability of Scheme procedures to return multiple values, which
   is a trait that wasn't supported conveniently in the core
-  language and had to be accounted for in SRFI-8, SRFI-11 and
-  SRFI-71 (and remains forgotten by the <code>or</code> form).</p>
+  language and had to be accounted for in SRFI 8, SRFI 11 and
+  SRFI 71 (and remains forgotten by the <code>or</code> form).</p>
 
 <p>Various Scheme implementations provide the feature of
-  "curried definitions", which allows to generalize the
+  "curried definitions", which allows one to generalize the
   <code>define</code>'s extended syntax
   <code>(define (function arguments ...) . body)</code>
-  to produce higher order functions. However, they do not
-  integrate well with the pattern matching variant of
+  to produce higher-order functions. However, they do not
+  integrate well with the pattern-matching variant of
   the <code>lambda</code> form.</p>
 
 <p>The purpose of this document is to propose a set of extensions
   to the core bindings that integrate well with both pattern matching
-  and multiple values. These extensions remain mostly backwards compatible
-  with the hitherto usages of the core forms.</p>
+  and multiple values. These extensions remain mostly backwards-compatible
+  with earlier usages of the core forms.</p>
 
 
 <h2>Specification</h2>
@@ -67,7 +67,7 @@ will not appear in the final SRFI.
 <h2>The pattern matching (destructuring) <code>lambda</code> form</h2>
 
 <p>This document assumes that the <code>lambda</code> form should allow
-  to destructure its arguments, i.e. for example</p>
+  one to destructure its arguments, i.e. for example</p>
 
 <pre>
   (map (lambda (`(,x . ,y))
@@ -99,10 +99,10 @@ will not appear in the final SRFI.
 </pre>
 
 
-<h2>The pattern matching <code>let</code> form</h2>
+<h2>The pattern-matching <code>let</code> form</h2>
 
 <p>The <code>let</code> form is often explained in terms of the <code>lambda</code>
-  form, and as such it should be expected that it inherits the ability to
+  form, and therefore should be expected to inherit the ability to
   perform destructuring bind.</p>
 
 <p>Additionally, Scheme provides a variant of the <code>let</code> form
@@ -110,7 +110,7 @@ will not appear in the final SRFI.
 
 <p>Moreover, if there is only one expression whose value is being bound using
   the <code>let</code> form, it should also be able to handle multiple values
-  (like SRFI-71, but with the ability to destructure additional values).</p>
+  (like SRFI 71, but with the ability to destructure additional values).</p>
 
 <p>To give an example, the form could be used in the following way:</p>
 
@@ -121,16 +121,16 @@ will not appear in the final SRFI.
 
 <p>Note however, that if there is more than one expression whose value
   is being bound with the <code>let</code> form, and at least one of
-  the bindings binds multiple values, then - even though it is possible
+  the bindings binds multiple values, then even though it is possible
   to implement this scenario, it is impossible to implement it efficiently,
   and because of this, such use should be discouraged.</p>
 
-<h2>The pattern matching <code>let*</code> form that supports multiple values</h2>
+<h2>The pattern-matching <code>let*</code> form that supports multiple values</h2>
 
 <p>The <code>let*</code> form in the Scheme language is typically explained
-  in terms of nested <code>let</code>forms. Because of this, the bindings
+  in terms of nested <code>let</code> forms. Because of this, the bindings
   in the <code>let*</code> form are also expected to perform destructuring bind
-  and to support multiple values (like SRFI-71, but with the ability
+  and to support multiple values (like SRFI 71, but with the ability
   to destructure additional values).</p>
 
 <p>Here's an example use of the extended <code>let*</code> form:</p>
@@ -142,7 +142,7 @@ will not appear in the final SRFI.
 </pre>
 
 <h2>The <code>define</code> form that supports "curried definitions"
-  with destrucutring</h2>
+  with destructuring</h2>
 
 <p>The Scheme language provides a variant of the <code>define</code> form
   which is used like this:</p>
@@ -158,7 +158,7 @@ which desugars to
 </pre>
 
 By analogy, some Scheme implementations provide a generalization of this
-ability, which allows to define higher-order functions conveniently. This
+ability, which allows one to define higher-order functions conveniently. This
 feature, sometimes incorrectly called "currying", works by desugaring
 
 <pre>
@@ -185,7 +185,7 @@ into
   <code>(or (values 1 2) #f)</code> only yields <code>1</code> on
   some implementations, and on other implementations is not supported.</p>
 
-<p>Since the handling of mulitple vaues in the <code>or</code> form may
+<p>Since the handling of multiple values in the <code>or</code> form may
   require heap allocation, multiple-value <code>or</code> is considered
   an optional part of this SRFI.</p>
 
@@ -194,12 +194,12 @@ into
 
 <p>The sample implementations are based on the abilities of some Scheme
 module systems to shadow existing bindings. They also rely on the presence
-  of a SRFI-???-conformant pattern matching library, and the presence of
-the SRFI-1 <code>every</code> procedure available during macro expansion.</p>
+  of a SRFI-200-conformant pattern matching library, and the presence of
+the SRFI 1 <code>every</code> procedure available during macro expansion.</p>
 
 <h2>Pattern-matching <code>lambda</code></h2>
 
-<p>The pattern matching variant of the  <code>lambda</code> form
+<p>The pattern-matching variant of the  <code>lambda</code> form
   can be implemented by defining the following <code>mlambda</code>
   form and exporting it to shadow the core <code>lambda</code> form.</p>
 
@@ -247,9 +247,9 @@ the SRFI-1 <code>every</code> procedure available during macro expansion.</p>
     ))
 </pre>
 
-<h2>Pattern-maching variant of the <code>let</code> form that supports multiple values</h2>
+<h2>Pattern-matching variant of the <code>let</code> form that supports multiple values</h2>
 
-<p>The pattern matching variant of the <code>let</code> form
+<p>The pattern-matching variant of the <code>let</code> form
   can be implemented by defining the following <code>named-match-let-values</code>
   form and exporting it to shadow the core <code>let</code> form.</p>
 
@@ -322,9 +322,9 @@ the SRFI-1 <code>every</code> procedure available during macro expansion.</p>
 </pre>
 
 
-<h2>Pattern-maching variant of the <code>let*</code> form that supports multiple values</h2>
+<h2>Pattern-matching variant of the <code>let*</code> form that supports multiple values</h2>
 
-<p>The pattern matching variant of the <code>let*</code> form
+<p>The pattern-matching variant of the <code>let*</code> form
   can be implemented by defining the following <code>match-let*-values</code>
   form and exporting it to shadow the core <code>let*</code> form. It assumes the
   presence of the definition of the <code>match-let/error</code> form from
