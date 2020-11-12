@@ -26,10 +26,15 @@
   to the core bindings of the Scheme programming language.
   In particular, it proposes to extend the binding forms
   <code>lambda</code>, <code>let</code>,
-  <code>let*</code> with pattern matching capabilities, to extend the forms <code>let*</code>
+  <code>let*</code> with pattern matching capabilities, to extend the forms <code>let</code>,  <code>let*</code>
   and <code>or</code> with the ability
   to handle multiple values, and to extend the form <code>define</code> with
   the ability of defining "curried" functions.</p>
+
+<p>It also proposes a body-less variant of
+  the <code>lambda</code> form, and specifies the
+  behavior of body-less "curried" <code>define</code>
+  forms to behave consistently with that extension.</p>
 
 <h2>Issues</h2>
 
@@ -48,7 +53,8 @@ None at present.
   ability of Scheme procedures to return multiple values, which
   is a trait that wasn't supported conveniently in the core
   language and had to be accounted for in SRFI 8, SRFI 11 and
-  SRFI 71 (and remains forgotten by the <code>or</code> form).</p>
+  SRFI 71 (and remains forgotten by the <code>or</code> form).
+</p>
 
 <p>Various Scheme implementations provide the feature of
   "curried definitions", which allows one to generalize the
@@ -58,18 +64,19 @@ None at present.
   integrate well with the pattern-matching variant of
   the <code>lambda</code> form.</p>
 
-<p>The purpose of this document is to propose a set of extensions
-  to the core bindings that integrate well with both pattern matching
-  and multiple values. These extensions remain mostly backwards-compatible
-  with earlier usages of the core forms.</p>
-
+<p>The purpose of this document is to propose a set of
+  extensions to the core bindings that integrate well with
+  both pattern matching and multiple values. These extensions
+  remain mostly backwards-compatible with earlier usages
+  of the core forms.</p>
 
 <h2>Specification</h2>
 
 <h2>The pattern matching (destructuring) <code>lambda</code> form</h2>
 
-<p>This document assumes that the <code>lambda</code> form should allow
-  one to destructure its arguments, i.e. for example</p>
+<p>This document assumes that the <code>lambda</code> form
+  should allow one to destructure its arguments, i.e.
+  for example</p>
 
 <pre>
   (map (lambda (`(,x . ,y))
@@ -100,6 +107,30 @@ None at present.
       (_ (error "invalid args: "args", expected"'(&lt;patterns&gt; ...)))))
 </pre>
 
+<p>Moreover, in order to preserve backwards compatibility
+  and avoid unnecessary performance penalties, if each
+  <code>&lt;pattern&gt;</code> is an identifier,
+  then <code>lambda<sub>match</sub></code> desugars
+  directly into <code>lambda<sub>core</sub></code>.</p>
+
+<h2>Empty bodies in the <code>lambda</code> form</h2>
+
+<p>The ability to pattern-match arguments provides
+  a justification for <code>lambda</code> forms
+  with empty bodies: it makes sense to interpret</p>
+
+<pre>
+  (lambda<sub>match</sub> (&lt;patterns&gt; ...))
+</pre>
+
+as
+
+<pre>
+  (lambda<sub>core</sub> args
+    (match args
+      (`(,&lt;patterns&gt; ...) #t)
+      (_ #f)))
+</pre>
 
 <h2>The pattern-matching <code>let</code> form</h2>
 
@@ -112,12 +143,21 @@ None at present.
 
 <p>Moreover, if there is only one expression whose value is being bound using
   the <code>let</code> form, it should also be able to handle multiple values
-  (like SRFI 71, but with the ability to destructure additional values).</p>
+  (like SRFI 71, but with the ability to destructure the received values).</p>
 
 <p>To give an example, the form could be used in the following way:</p>
 
 <pre>
   (let lp ((`(,a ,b) `(,c) (values '(1 2) '(3))))
+    (+ a b c))
+</pre>
+
+<p>Following SRFI-71, we treat the <code>values</code>
+  keyword in the left position specially, so that the
+  above form is equivalent to</p>
+
+<pre>
+  (let lp (((values `(,a ,b) `(,c)) (values '(1 2) '(3))))
     (+ a b c))
 </pre>
 
@@ -176,6 +216,20 @@ into
 <p>This SRFI document requires that the <code>lambda</code> used in the desugared
   form supports destructuring.</p>
 
+<p>Moreover, since <code>lambda</code> forms with
+  empty bodies expand to predicates that say whether
+  given arguments satisfy the specified patterns
+  (rather than report an error), the behavior of
+  body-less "curried" definitions is made consistent
+  with the behavior of body-less <code>lambda</code>
+  forms: all levels of arguments are tested against
+  the specified pattetns, and if some arguments do not
+  comply with the requested patterns, the final procedure
+  evaluates to <code>#f</code>; otherwise, i.e. if all
+  arguments conform to their corresponding patterns,
+  the final procedure evaluates to <code>#t</code>.
+</p>
+
 <h2>The <code>or</code> form that supports multiple values</h2>
 
 <p>The <code>or</code> binding provided by default in the Scheme language exposes
@@ -210,6 +264,12 @@ the SRFI 1 <code>every</code> procedure available during macro expansion.</p>
   (lambda (stx)
     (syntax-case stx ()
 
+      ((_ args)
+       #'(lambda args*
+	   (match args*
+	     (args #t)
+	     (_ #f))))
+
       ((_ (first-arg ... last-arg . rest-args) . body)
        (and (every identifier? #'(first-arg ... last-arg))
 	    (or (identifier? #'rest-args) (null? #'rest-args)))
@@ -238,6 +298,9 @@ the SRFI 1 <code>every</code> procedure available during macro expansion.</p>
 <pre>
 (define-syntax cdefine
   (syntax-rules ()
+    ((_ (prototype . args))
+     ;; the body-less variant: see below
+     (cdefine-bodyless (prototype . args) #t))
     ((_ ((head . tail) . args) body ...)
      (cdefine (head . tail)
 	      (mlambda args body ...)))
@@ -247,6 +310,22 @@ the SRFI 1 <code>every</code> procedure available during macro expansion.</p>
     ((_ . rest)
      (define . rest))
     ))
+
+(define-syntax cdefine-bodyless
+  (syntax-rules ()
+   ((_ (function . pattern) result . args)
+    (cdefine-bodyless function
+		      (match arg
+			(pattern result)
+			(_ #f))
+		      arg . args))
+   
+   ((_ name result args ... arg)
+    (cdefine-bodyless name (lambda arg result) args ...))
+
+   ((_ name value)
+    (define name value))
+   ))
 </pre>
 
 <h2>Pattern-matching variant of the <code>let</code> form that supports multiple values</h2>
@@ -261,28 +340,53 @@ the SRFI 1 <code>every</code> procedure available during macro expansion.</p>
     ((_ ((structure expression) ...)
 	body + ...)
      ((lambda args
-        (match args
-         ((structure ...) body + ...)
-	 (_ (error 'match-let/error
-		   '((structure expression) ...)
-		   expression ...))))
-       expression ...))))
+	(match args
+	  ((structure ...) body + ...)
+	  (_ (error 'match-let/error
+		    (current-source-location) 
+		    '((structure expression) ...)
+		    expression ...))))
+      expression ...))))
 
 (define-syntax named-match-let-values
   (lambda (stx)
-    (syntax-case stx ()
-      ((_ ((identifier expression) ...) ;; optimization: plain "let" form
+    (syntax-case stx (values)
+      ((_ ((identifier expression) ...) 
 	  body + ...)
        (every identifier? #'(identifier ...))
+       ;; optimization: plain "let" form
        #'(let ((identifier expression) ...)
 	   body + ...))
 
-      ((_ name ((identifier expression) ...) ;; optimization: regular named-let
+      ((_ name ((identifier expression) ...) 
 	  body + ...)
-       (and (identifier? #'name) (every identifier? #'(identifier ...)))
+       (and (identifier? #'name)
+	    (every identifier? #'(identifier ...)))
+       ;; optimization: regular named-let
        #'(let name ((identifier expression) ...)
 	   body + ...))
 
+      ((_ name (((values . structure) expression))
+	  body + ...)
+       (identifier? #'name)
+       #'(letrec ((name (mlambda structure body + ...)))
+	   (call-with-values (lambda () expression) name)))
+
+      ((_ (((values . structure) expression)) body + ...)
+       #'(call-with-values (lambda () expression)
+	   (mlambda structure body + ...)))
+
+      ((_ name ((structure expression) ...)
+	  body + ...)
+       (and (identifier? #'name)
+	    (any (lambda (pattern)
+		   (display pattern)(newline)
+		   (and (pair? pattern)
+			(eq? (car pattern) 'values)))
+		 (syntax->datum #'(structure ...))))
+       #'(syntax-error "let can only handle one binding \
+in the presence of a multiple-value binding"))
+      
       ((_ name ((structure expression) ...)
 	  body + ...)
        (identifier? #'name)
@@ -291,36 +395,30 @@ the SRFI 1 <code>every</code> procedure available during macro expansion.</p>
 
       ((_ ((structure expression) ...)
 	  body + ...)
-       #'(match-let/error ((structure expression) ...)
+       (any (lambda (pattern)
+	      (and (pair? pattern)
+		   (eq? (car pattern) 'values)))
+	    (syntax->datum #'(structure ...)))
+       #'(syntax-error "let can only handle one binding \
+in the presence of a multiple-value binding"))
+      
+      ((_ ((structure expression) ...)
+	  body + ...)
+       #'(match-let/error ((structure expression) ...) 
 			  body + ...))
-
-      ((_ ((identifier identifiers ... expression)) body + ...)
-       (every identifier? #'(identifier identifiers ...))
-       #'(call-with-values (lambda () expression)
-	   (lambda (identifier identifiers ... . _)
-	     body + ...)))
 
       ((_ ((structure structures ... expression)) body + ...)
        #'(call-with-values (lambda () expression)
-          (lambda args
-            (match args
-             ((structure structures ... . _) body + ...)
-	     (_ (error 'named-match-let-values  'name))))))
+	   (mlambda (structure structures ... . _)
+		    body + ...)))
 
-      ((_ name ((identifier identifiers ... expression) body + ...))
-       (and (identifier? #'name)
-	    (every identifier? #'(identifier identifiers ...)))
-       #'(let ((name (lambda (identifier identifiers ...) body + ...)))
-	   (call-with-values (lambda () expression) name)))
-
-      ((_ name ((structure structures ... expression) body + ...))
+      ((_ name ((structure structures ... expression))
+		body + ...)
        (identifier? #'name)
-       #'(let ((name (lambda args
-                       (match args
-                         ((structure structures ...) body + ...)
-                         (_ (error 'named-match-let-values 'name))))))
+       #'(letrec ((name (mlambda (structure structures ...)
+			     body + ...)))
 	   (call-with-values (lambda () expression) name)))
-      )))
+    )))
 </pre>
 
 
@@ -329,49 +427,24 @@ the SRFI 1 <code>every</code> procedure available during macro expansion.</p>
 <p>The pattern-matching variant of the <code>let*</code> form
   can be implemented by defining the following <code>match-let*-values</code>
   form and exporting it to shadow the core <code>let*</code> form. It assumes the
-  presence of the definition of the <code>match-let/error</code> form from
+  presence of the definition of the <code>named-match-let-values</code> form from
   the previous section</p>
 
 <pre>
 (define-syntax match-let*-values
   (lambda (stx)
     (syntax-case stx ()
-
-      ((_ ((identifier expression) ...) ;; optimization: regular let*
-	  body + ...)
+      ((_ ((identifier expression) ...) body + ...)
        (every identifier? #'(identifier ...))
+       ;; optimization/base case: regular let*
        #'(let* ((identifier expression) ...)
 	   body + ...))
+      ((_ (binding . bindings) body + ...)
+       #'(named-match-let-values (binding)
+				 (match-let*-values
+				  bindings
+				  body + ...))))))
 
-      ((_ ((identifier expression) remaining-bindings ...)
-	  body + ...)
-       (identifier? #'identifier)
-       #'(let ((identifier expression))
-	   (match-let*-values (remaining-bindings ...) body + ...)))
-
-      ((_ ((structure expression) remaining-bindings ...)
-	  body + ...)
-       #'(match-let/error ((structure expression))
-			  (match-let*-values (remaining-bindings ...)
-					     body + ...)))
-
-      ((_ ((identifier identifiers ... expression) remaining-bindings ...)
-	  body + ...)
-       (every identifier? #'(identifier identifiers ...))
-       #'(call-with-values (lambda () expression)
-	   (lambda (identifier identifiers ... . _)
-	     (match-let*-values (remaining-bindings ...)
-				body + ...))))
-
-      ((_ ((structure structures ... expression) remaining-bindings ...)
-	  body + ...)
-       #'(call-with-values (lambda () expression)
-           (lambda args
-             (match args
-               ((structure structures ... . _)
-		(match-let*-values (remaining-bindings ...) body + ...))
-	        (_ (error 'match-let*-values))))))
-      )))
 </pre>
 
 <h2>A variant of the <code>or</code> form that supports multiple values</h2>
@@ -397,18 +470,64 @@ the SRFI 1 <code>every</code> procedure available during macro expansion.</p>
 	     (or/values . rest)))))))
 </pre>
 
-<h2>Real-life implementations</h2>
+<h2>Specific implementations</h2>
 
-<p>A working implementation of a superset of these definitions for Guile Scheme can be found
-  in the <a href="https://github.com/plande/grand-scheme/blob/master/grand/syntax.scm">(grand syntax)</a>
-  module of the <a href="https://github.com/plande/grand-scheme">(grand scheme)</a> glossary.</p>
+<p>The implementation of this SRFI relies on the ability of module
+  system to rename/shadow existing bindings.</p>
 
-<p>A working implementation of a superset of these definitions for the Racket
-  language can be found in the <a href="https://github.com/panicz/sracket/blob/master/grand-syntax.rkt">"grand-syntax.rkt"</a> module of the <a href="https://github.com/panicz/sracket">Sracket</a> framework.</p>
+<p>The repository of this SRFI contains one implementation
+  for <a href="https://github.com/panicz/srfi-201/tree/draft-2/guile/srfi/201.scm">Guile</a>,
+  and another for <a href="https://github.com/panicz/srfi-201/tree/draft-2/racket/srfi/201.rkt">Racket</a>.
+  Each comes with a test suite written in a literate programming style,
+  and either of those test suites - i.e. the one for
+  <a href="https://github.com/panicz/srfi-201/tree/draft-2/guile/examples.scm">Guile</a> and
+  the one for <a href="https://github.com/panicz/srfi-201/tree/draft-2/racket/examples.rkt">Racket</a>
+  - is an important supplement to this document.</p>
 
+<p>We encourage the maintainers of Scheme implementations
+  that do not renaming/shadowing of core bindings, to
+  extend their core bindings with the capabilities described
+  in this document.</p>
+  
 <h2>Acknowledgements</h2>
 
-??? credit where it is due
+<p>First of all, I'd like to thank Ścisław Dercz for being
+  an early adopter of the <code><a href="https://github.com/plande/grand-scheme">(grand scheme) glossary</a></code>,
+  which has been the base for the set of extensions proposed
+  in this document.
+  I am particularly proud of the fact that Dercz chose
+  (grand scheme) to write a set of his programming doodles
+  that he called <a href="https://github.com/drcz/useless-software">Useless Software</a>.
+</p>
+
+<p>I'm also very grateful to the developers of Guile,
+  who - through their <code>(ice-9 curried-definitions)</code>
+  module - taught me, that overriding core Scheme forms is not
+  only conceivable, but can also be very useful.</p>
+
+<p>I consider this work to be a part of decades-long
+  evolution in functional programming style, dating back
+  at least to Robin Milner and Rod Burstall, who pioneered
+  pattern matching in programming languages.</p>
+
+<p>This work has originally been based on pattetn matcher
+  written by Alex Shinn, based on the specification
+  presented by Andrew K. Wright and Robert Cartwright,
+  and the Guile implementation of this SRFI still uses
+  Shinn's <code>match</code> as its base.</p>
+
+<p>The Racket version of this SRFI owes its existence
+  to the kindness of the Racket community, and in particular
+  to Jesse Alama, who invited me to speak at Racketfest
+  that he organized in Berlin in 2019.</p>
+
+<p>Last but not least, I'd like to thank all the people
+  who persist in carrying the torch of Scheme development
+  under the umbrella of the SRFI process, in particular
+  to Arthur Gleckler for his patience, encouragement
+  and support, Marc Nieper Wißkirchen for his attentive
+  and insightful remarks, and John Cowan for shepherding
+  the Scheme community.</p>
 
 <h2>Copyright</h2>
 Copyright &copy; Panicz Maciej Godek (2020).
