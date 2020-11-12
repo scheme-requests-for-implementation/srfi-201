@@ -472,15 +472,17 @@ in the presence of a multiple-value binding"))
 
 <h2>Specific implementations</h2>
 
-<p>It is impossible to provide a portable implementation
-of this SRFI, because it relies on the ability of module
+<p>The implementation of this SRFI relies on the ability of module
   system to rename/shadow existing bindings.</p>
 
 <p>The repository of this SRFI contains one implementation
-  for Guile, and another for Racket. Each comes with
-  a test suite written in a literate programming style,
-  and either of those test suites is considered to be
-  an important supplement to this document.</p>
+  for <a href="https://github.com/panicz/srfi-201/tree/draft-2/guile/srfi/201.scm">Guile</a>,
+  and another for <a href="https://github.com/panicz/srfi-201/tree/draft-2/racket/srfi/201.rkt">Racket</a>.
+  Each comes with a test suite written in a literate programming style,
+  and either of those test suites - i.e. the one for
+  <a href="https://github.com/panicz/srfi-201/tree/draft-2/guile/examples.scm">Guile</a> and
+  the one for <a href="https://github.com/panicz/srfi-201/tree/draft-2/racket/examples.rkt">Racket</a>
+  - is an important supplement to this document.</p>
 
 <p>We encourage the maintainers of Scheme implementations
   that do not renaming/shadowing of core bindings, to
