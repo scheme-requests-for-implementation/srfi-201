@@ -152,7 +152,7 @@ as
     (+ a b c))
 </pre>
 
-<p>Following SRFI-71, we treat the <code>values</code>
+<p>Following SRFI 71, we treat the <code>values</code>
   keyword in the left position specially, so that the
   above form is equivalent to</p>
 
@@ -223,7 +223,7 @@ into
   body-less "curried" definitions is made consistent
   with the behavior of body-less <code>lambda</code>
   forms: all levels of arguments are tested against
-  the specified pattetns, and if some arguments do not
+  the specified patterns, and if some arguments do not
   comply with the requested patterns, the final procedure
   evaluates to <code>#f</code>; otherwise, i.e. if all
   arguments conform to their corresponding patterns,
@@ -485,7 +485,7 @@ in the presence of a multiple-value binding"))
   - is an important supplement to this document.</p>
 
 <p>We encourage the maintainers of Scheme implementations
-  that do not renaming/shadowing of core bindings, to
+  that do not support renaming/shadowing of core bindings, to
   extend their core bindings with the capabilities described
   in this document.</p>
   
@@ -502,7 +502,7 @@ in the presence of a multiple-value binding"))
 
 <p>I'm also very grateful to the developers of Guile,
   who - through their <code>(ice-9 curried-definitions)</code>
-  module - taught me, that overriding core Scheme forms is not
+  module - taught me that overriding core Scheme forms is not
   only conceivable, but can also be very useful.</p>
 
 <p>I consider this work to be a part of decades-long
@@ -510,7 +510,7 @@ in the presence of a multiple-value binding"))
   at least to Robin Milner and Rod Burstall, who pioneered
   pattern matching in programming languages.</p>
 
-<p>This work has originally been based on pattetn matcher
+<p>This work has originally been based on pattern matcher
   written by Alex Shinn, based on the specification
   presented by Andrew K. Wright and Robert Cartwright,
   and the Guile implementation of this SRFI still uses
