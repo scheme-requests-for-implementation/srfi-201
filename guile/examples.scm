@@ -1,9 +1,6 @@
-;; First, let's make sure that Guile will look for the
-;; SRFI-201 module in the current directory:
-
-(set! %load-path `("." . ,%load-path))
-
-;; Now load the module:
+#!/usr/bin/guile \
+-L . -s
+!#
 
 (use-modules (srfi srfi-201))
 
