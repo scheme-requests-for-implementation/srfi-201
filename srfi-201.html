@@ -318,7 +318,7 @@ the SRFI 1 <code>every</code> procedure available during macro expansion.</p>
 			(pattern result)
 			(_ #f))
 		      arg . args))
-   
+
    ((_ name result args ... arg)
     (cdefine-bodyless name (lambda arg result) args ...))
 
@@ -341,7 +341,7 @@ the SRFI 1 <code>every</code> procedure available during macro expansion.</p>
 	(match args
 	  ((structure ...) body + ...)
 	  (_ (error 'match-let/error
-		    (current-source-location) 
+		    (current-source-location)
 		    '((structure expression) ...)
 		    expression ...))))
       expression ...))))
@@ -349,14 +349,14 @@ the SRFI 1 <code>every</code> procedure available during macro expansion.</p>
 (define-syntax named-match-let-values
   (lambda (stx)
     (syntax-case stx (values)
-      ((_ ((identifier expression) ...) 
+      ((_ ((identifier expression) ...)
 	  body + ...)
        (every identifier? #'(identifier ...))
        ;; optimization: plain "let" form
        #'(let ((identifier expression) ...)
 	   body + ...))
 
-      ((_ name ((identifier expression) ...) 
+      ((_ name ((identifier expression) ...)
 	  body + ...)
        (and (identifier? #'name)
 	    (every identifier? #'(identifier ...)))
@@ -384,7 +384,7 @@ the SRFI 1 <code>every</code> procedure available during macro expansion.</p>
 		 (syntax->datum #'(structure ...))))
        #'(syntax-error "let can only handle one binding \
 in the presence of a multiple-value binding"))
-      
+
       ((_ name ((structure expression) ...)
 	  body + ...)
        (identifier? #'name)
@@ -399,10 +399,10 @@ in the presence of a multiple-value binding"))
 	    (syntax->datum #'(structure ...)))
        #'(syntax-error "let can only handle one binding \
 in the presence of a multiple-value binding"))
-      
+
       ((_ ((structure expression) ...)
 	  body + ...)
-       #'(match-let/error ((structure expression) ...) 
+       #'(match-let/error ((structure expression) ...)
 			  body + ...))
 
       ((_ ((structure structures ... expression)) body + ...)
@@ -486,7 +486,7 @@ in the presence of a multiple-value binding"))
   that do not support renaming/shadowing of core bindings, to
   extend their core bindings with the capabilities described
   in this document.</p>
-  
+
 <h2>Acknowledgements</h2>
 
 <p>First of all, I'd like to thank Ścisław Dercz for being

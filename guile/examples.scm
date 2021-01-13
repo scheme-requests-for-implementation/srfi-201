@@ -197,7 +197,7 @@
     z))
  ===> (1 2) (3))
 
-;; The 'named-let' is of course supported 
+;; The 'named-let' is of course supported
 (e.g.
  (let loop ((x 0))
    (if (>= x 10)
@@ -240,7 +240,7 @@
 	    (c 3))
    'whatever) ===>! syntax-error)
 
-;; and the 'values' keyword doesn't change that: 
+;; and the 'values' keyword doesn't change that:
 
 (e.g.
  (let loop (((values a b) (values 1 2))
@@ -308,7 +308,7 @@
 
 ;; Body-less curried definitions only test for validity
 ;; of patterns, so they don't throw 'invalid match' errors,
-;; but return #t on successful 
+;; but return #t on successful
 
 (e.g.
  (let ()

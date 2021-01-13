@@ -50,7 +50,7 @@
      (final ... ((list-rest processed ... last tail)
 		 body ...)
             (_ failure)))
-    
+
     ((list-pattern (final ...) failure improper
 		   () body ...)
      (final ... (improper body ...) (_ failure)))))
@@ -66,18 +66,18 @@
 
       ((_ args)
        #'(match-lambda-rest #f args () #t))
-			    
+
       ((_ (first-arg ... last-arg . rest-args) . body)
        (and (every racket-argument?
 		   #'(first-arg ... last-arg))
             (or (identifier? #'rest-args)
                 (empty? #'rest-args)))
        #'(lambda (first-arg ... last-arg . rest-args) . body))
-      
+
       ((_ arg body ...)
        (or (identifier? #'arg) (empty? #'arg))
        #'(lambda arg body ...))
-      
+
       ((_ args body ...)
        #'(match-lambda-rest
 	  (error "invalid pattern"
@@ -88,7 +88,7 @@
   (syntax-rules ()
     ((_ (prototype . args))
      (cdefine-bodyless (prototype . args) #t))
-    
+
     ((_ ((head . tail) . args) body ...)
      (cdefine (head . tail) (mlambda args body ...)))
 
@@ -112,7 +112,7 @@
 		       ()
 		       result)
 		      arg . args))
-   
+
    ((_ name result args ... arg)
     (cdefine-bodyless name (lambda arg result) args ...))
 
@@ -127,7 +127,7 @@
     (error "invalid pattern"
 	   '(let ((structure expression) ...) body + ...)
 	   `(expression ,expression) ...)
-    
+
     (structure ...) () body + ...)
    expression ...))
 
@@ -140,8 +140,8 @@
        ;; optimization: plain "let" form
        #'(let ((identifier expression) ...)
            body + ...))
-      
-      ((_ name ((identifier expression) ...) 
+
+      ((_ name ((identifier expression) ...)
           body + ...)
        (and (identifier? #'name)
 	    (every identifier? #'(identifier ...)))
@@ -158,19 +158,19 @@
       ((_ (((values . structure) expression)) body + ...)
        #'(call-with-values (lambda () expression)
 	   (mlambda structure body + ...)))
-      
+
       ((_ name ((structure expression) ...)
           body + ...)
        (identifier? #'name)
        #'(letrec ((name (mlambda (structure ...)
 				 body + ...)))
            (name expression ...)))
-      
+
       ((_ ((structure expression) ...)
           body + ...)
-       #'(match-let/error ((structure expression) ...) 
+       #'(match-let/error ((structure expression) ...)
                           body + ...))
-      
+
       ((_ ((identifier identifiers ... expression))
 	  body + ...)
        (every identifier? #'(identifier identifiers ...))
@@ -178,7 +178,7 @@
 	     (lambda () expression)
            (lambda (identifier identifiers ... . _)
              body + ...)))
-      
+
       ((_ ((structure structures ... expression))
 	  body + ...)
        #'(call-with-values
@@ -192,7 +192,7 @@
 		      body + ...))
             (structure structures ... . _)
             () body + ...)))
-      
+
       ((_ name ((identifier identifiers ... expression))
 	  body + ...)
        (and (identifier? #'name)
@@ -201,7 +201,7 @@
        #'(let ((name (lambda (identifier identifiers ...)
 		       body + ...)))
            (call-with-values (lambda () expression) name)))
-      
+
       ((_ name ((structure structures ... expression))
 	  body + ...)
        (identifier? #'name)
@@ -222,10 +222,10 @@
   (syntax-rules ()
     ((_)
      #false)
-    
+
     ((or/values final)
      final)
-    
+
     ((or/values first . rest)
      (call-with-values
 	 (lambda () first)

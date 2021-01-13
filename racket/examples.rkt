@@ -106,7 +106,7 @@
     ;; invalid syntax as an expression, we would obtain
     ;; syntactically invalid program. So instead we quote
     ;; the expression and try to evaluate it, expecting
-    ;; an error    
+    ;; an error
     ((e.g. <expression> ===>! syntax-error)
      (let ((failure (with-handlers ((exn:fail? identity))
 		      (eval '<expression>)
@@ -195,7 +195,7 @@
     z))
  ===> (1 2) (3))
 
-;; The 'named-let' is of course supported 
+;; The 'named-let' is of course supported
 (e.g.
  (let loop ((x 0))
    (if (>= x 10)
@@ -238,7 +238,7 @@
 	    (c 3))
    'whatever) ===>! syntax-error)
 
-;; and the 'values' keyword doesn't change that: 
+;; and the 'values' keyword doesn't change that:
 
 (e.g.
  (let loop (((values a b) (values 1 2))
@@ -312,8 +312,8 @@
  ===> (1 2 3 4))
 
 ;; Body-less curried definitions only test for validity
-;; of patterns, so they don't throw 'invalid match' 
-;; errors, but return #t on successful 
+;; of patterns, so they don't throw 'invalid match'
+;; errors, but return #t on successful
 
 (e.g.
  (let ()

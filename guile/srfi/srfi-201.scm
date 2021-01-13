@@ -32,7 +32,7 @@
       ((_ pattern body ...)
        #'(lambda args
 	   (match args
-	     (pattern body ...) 
+	     (pattern body ...)
 	     (_ (error
 		 `((mlambda pattern body ...) ,args))))))
       )))
@@ -64,7 +64,7 @@
 			(pattern result)
 			(_ #f))
 		      arg . args))
-   
+
    ((_ name result args ... arg)
     (cdefine-bodyless name (lambda arg result) args ...))
 
@@ -80,7 +80,7 @@
 	(match args
 	  ((structure ...) body + ...)
 	  (_ (error 'match-let/error
-		    (current-source-location) 
+		    (current-source-location)
 		    '((structure expression) ...)
 		    expression ...))))
       expression ...))))
@@ -88,14 +88,14 @@
 (define-syntax named-match-let-values
   (lambda (stx)
     (syntax-case stx (values)
-      ((_ ((identifier expression) ...) 
+      ((_ ((identifier expression) ...)
 	  body + ...)
        (every identifier? #'(identifier ...))
        ;; optimization: plain "let" form
        #'(let ((identifier expression) ...)
 	   body + ...))
 
-      ((_ name ((identifier expression) ...) 
+      ((_ name ((identifier expression) ...)
 	  body + ...)
        (and (identifier? #'name)
 	    (every identifier? #'(identifier ...)))
@@ -122,7 +122,7 @@
 		 (syntax->datum #'(structure ...))))
        #'(syntax-error "let can only handle one binding \
 in the presence of a multiple-value binding"))
-      
+
       ((_ name ((structure expression) ...)
 	  body + ...)
        (identifier? #'name)
@@ -137,10 +137,10 @@ in the presence of a multiple-value binding"))
 	    (syntax->datum #'(structure ...)))
        #'(syntax-error "let can only handle one binding \
 in the presence of a multiple-value binding"))
-      
+
       ((_ ((structure expression) ...)
 	  body + ...)
-       #'(match-let/error ((structure expression) ...) 
+       #'(match-let/error ((structure expression) ...)
 			  body + ...))
 
       ((_ ((structure structures ... expression)) body + ...)
@@ -163,10 +163,10 @@ in the presence of a multiple-value binding"))
 #|
       ((_ ((structure structures ... expression) ...)
 	  body + ...)
-       #'(match-let/error (((structure structures ... . _) 
+       #'(match-let/error (((structure structures ... . _)
 			    (list<-values expression)) ...)
 			  body + ...))
-      
+
       ((_ name ((structure structures ... expression) ...)
 	  body + ...)
        (identifier? #'name)
@@ -181,7 +181,7 @@ in the presence of a multiple-value binding"))
 						args)
 					       (... ...))))))
 			  body + ...))
-		     (_ (error 'named-match-let-values 
+		     (_ (error 'named-match-let-values
 			       (current-source-location)
 			       'name)))))
 		  (loop (list<-values expression) ...)))
@@ -192,10 +192,10 @@ in the presence of a multiple-value binding"))
   (syntax-rules ()
     ((_)
      #false)
-    
+
     ((or/values final)
      final)
-    
+
     ((or/values first . rest)
      (call-with-values (lambda () first)
        (lambda result
