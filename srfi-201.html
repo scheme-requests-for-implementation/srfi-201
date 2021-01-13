@@ -77,7 +77,7 @@ None at present.
 
 <h2>Specification</h2>
 
-<h2>The pattern matching (destructuring) <code>lambda</code> form</h2>
+<h3>The pattern matching (destructuring) <code>lambda</code> form</h3>
 
 <p>This document assumes that the <code>lambda</code> form
   should allow one to destructure its arguments, i.e.
@@ -118,7 +118,7 @@ None at present.
   then <code>lambda<sub>match</sub></code> desugars
   directly into <code>lambda<sub>core</sub></code>.</p>
 
-<h2>Empty bodies in the <code>lambda</code> form</h2>
+<h3>Empty bodies in the <code>lambda</code> form</h3>
 
 <p>The ability to pattern-match arguments provides
   a justification for <code>lambda</code> forms
@@ -137,7 +137,7 @@ as
       (_ #f)))
 </pre>
 
-<h2>The pattern-matching <code>let</code> form</h2>
+<h3>The pattern-matching <code>let</code> form</h3>
 
 <p>The <code>let</code> form is often explained in terms of the <code>lambda</code>
   form, and therefore should be expected to inherit the ability to
@@ -172,7 +172,7 @@ as
   to implement this scenario, it is impossible to implement it efficiently,
   and because of this, such use should be discouraged.</p>
 
-<h2>The pattern-matching <code>let*</code> form that supports multiple values</h2>
+<h3>The pattern-matching <code>let*</code> form that supports multiple values</h3>
 
 <p>The <code>let*</code> form in the Scheme language is typically explained
   in terms of nested <code>let</code> forms. Because of this, the bindings
@@ -188,8 +188,8 @@ as
     (+ a b c d e f))
 </pre>
 
-<h2>The <code>define</code> form that supports "curried definitions"
-  with destructuring</h2>
+<h3>The <code>define</code> form that supports "curried definitions"
+  with destructuring</h3>
 
 <p>The Scheme language provides a variant of the <code>define</code> form
   which is used like this:</p>
@@ -235,7 +235,7 @@ into
   the final procedure evaluates to <code>#t</code>.
 </p>
 
-<h2>The <code>or</code> form that supports multiple values</h2>
+<h3>The <code>or</code> form that supports multiple values</h3>
 
 <p>The <code>or</code> binding provided by default in the Scheme language exposes
   asymmetrical behavior with regard to handling multiple values in its different
@@ -251,7 +251,7 @@ into
   an optional part of this SRFI.</p>
 
 
-<h2>Implementation</h2>
+<h3>Specific implementation</h3>
 
 <p>The sample implementations are based on the abilities of some Scheme
 module systems to shadow existing bindings. They also rely on the presence
@@ -259,7 +259,7 @@ module systems to shadow existing bindings. They also rely on the presence
   the <a href="https://srfi.schemers.org/srfi-1/">SRFI 1</a>
   <code>every</code> procedure available during macro expansion.</p>
 
-<h2>Pattern-matching <code>lambda</code></h2>
+<h3>Pattern-matching <code>lambda</code></h3>
 
 <p>The pattern-matching variant of the  <code>lambda</code> form
   can be implemented by defining the following <code>mlambda</code>
@@ -292,7 +292,7 @@ module systems to shadow existing bindings. They also rely on the presence
 	     (_ (error 'mlambda '(args body ...)))))))))
 </pre>
 
-<h2>Higher-order <code>define</code> form</h2>
+<h3>Higher-order <code>define</code> form</h3>
 
 <p>The "currying" variant of the  <code>define</code> form
   can be implemented by defining the following <code>cdefine</code>
@@ -331,7 +331,7 @@ module systems to shadow existing bindings. They also rely on the presence
     (define name value))))
 </pre>
 
-<h2>Pattern-matching variant of the <code>let</code> form that supports multiple values</h2>
+<h3>Pattern-matching variant of the <code>let</code> form that supports multiple values</h3>
 
 <p>The pattern-matching variant of the <code>let</code> form
   can be implemented by defining the following <code>named-match-let-values</code>
@@ -425,7 +425,7 @@ in the presence of a multiple-value binding"))
 </pre>
 
 
-<h2>Pattern-matching variant of the <code>let*</code> form that supports multiple values</h2>
+<h3>Pattern-matching variant of the <code>let*</code> form that supports multiple values</h3>
 
 <p>The pattern-matching variant of the <code>let*</code> form
   can be implemented by defining the following <code>match-let*-values</code>
@@ -450,7 +450,7 @@ in the presence of a multiple-value binding"))
 
 </pre>
 
-<h2>A variant of the <code>or</code> form that supports multiple values</h2>
+<h3>A variant of the <code>or</code> form that supports multiple values</h3>
 
 <p>The variant of the <code>or</code> form that supports multiple values
   can be implemented by defining the following <code>or/values</code>
@@ -473,10 +473,10 @@ in the presence of a multiple-value binding"))
 	     (or/values . rest)))))))
 </pre>
 
-<h2>Specific implementations</h2>
+<h2>Implementation</h2>
 
-<p>The implementation of this SRFI relies on the ability of module
-  system to rename/shadow existing bindings.</p>
+<p>The sample implementation of this SRFI relies on the ability of
+  module system to rename/shadow existing bindings.</p>
 
 <p>The repository of this SRFI contains one implementation
   for <a href="https://github.com/scheme-requests-for-implementation/srfi-201/blob/master/guile/srfi/srfi-201.scm">Guile</a>,
