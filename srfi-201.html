@@ -45,16 +45,20 @@ None at present.
 
 <p>The Scheme programming language is rich in syntactic extensions.
   For example, various pattern matching libraries mentioned in
-  SRFI 200 define special forms like <code>match-lambda*</code>,
+  <a href="https://srfi.schemers.org/srfi-200/">SRFI 200</a> define
+  special forms like <code>match-lambda*</code>,
   <code>match-let</code> or <code>match-let*</code>, which extend
   the <code>lambda</code>, <code>let</code> and <code>let*</code>
   forms with the capability of pattern matching.</p>
 
 <p>However, those forms usually do not take into account the
   ability of Scheme procedures to return multiple values, which
-  is a trait that wasn't supported conveniently in the core
-  language and had to be accounted for in SRFI 8, SRFI 11 and
-  SRFI 71 (and remains forgotten by the <code>or</code> form).
+  is a trait that wasn't supported conveniently in the core language
+  and had to be accounted for in
+  <a href="https://srfi.schemers.org/srfi-8/">SRFI 8</a>,
+  <a href="https://srfi.schemers.org/srfi-11/">SRFI 11</a>,
+  and <a href="https://srfi.schemers.org/srfi-71/">SRFI 71</a> (and
+  remains forgotten by the <code>or</code> form).
 </p>
 
 <p>Various Scheme implementations provide the feature of
@@ -252,7 +256,8 @@ into
 <p>The sample implementations are based on the abilities of some Scheme
 module systems to shadow existing bindings. They also rely on the presence
   of a SRFI-200-conformant pattern matching library, and the presence of
-the SRFI 1 <code>every</code> procedure available during macro expansion.</p>
+  the <a href="https://srfi.schemers.org/srfi-1/">SRFI 1</a>
+  <code>every</code> procedure available during macro expansion.</p>
 
 <h2>Pattern-matching <code>lambda</code></h2>
 
